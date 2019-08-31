@@ -7,6 +7,10 @@ import javafx.scene.Parent
 import javafx.scene.control.ScrollPane
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import model.PlayerPage
+import model.PlayerPageListResponse
+import model.Team
+import model.UpdatePage
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.util.regex.Pattern
@@ -69,6 +73,7 @@ class AuditUpdatesScreen {
         }
         resultList.add("\n--------------------------------------------------\n")
 
+        // fixme:
         //Player Missing From Sheet
         //Sheet Not Updated
 
@@ -170,63 +175,5 @@ class AuditUpdatesScreen {
         ).filter { playerPage ->
             Team.values().map { team -> team.name }.contains(playerPage.team)
         }
-    }
-
-    private class UpdatePage(
-        val title: String,
-        val user: String,
-        val lastPostIsRecent: Boolean,
-        val lastPostIsFromOwner: Boolean
-    )
-
-    private class PlayerPage(
-        val user: String,
-        val team: String,
-        val tpeHistoryList: ArrayList<Pair<String, String>>,
-        val strength: Int,
-        val agility: Int,
-        val arm: Int,
-        val intelligence: Int,
-        val throwingAccuracy: Int,
-        val tackling: Int,
-        val speed: Int,
-        val hands: Int,
-        val passBlocking: Int,
-        val runBlocking: Int,
-        val endurance: Int,
-        val kickPower: Int,
-        val kickAccuracy: Int
-    )
-
-    private class SheetPage(
-        val user: String,
-        val strength: Int,
-        val agility: Int,
-        val arm: Int,
-        val intelligence: Int,
-        val throwingAccuracy: Int,
-        val tackling: Int,
-        val speed: Int,
-        val hands: Int,
-        val passBlocking: Int,
-        val runBlocking: Int,
-        val endurance: Int,
-        val kickPower: Int,
-        val kickAccuracy: Int
-    )
-
-    private class PlayerPageListResponse : ArrayList<PlayerPage>()
-
-    private enum class Team(val id: String) {
-        BALTIMORE_HAWKS("70"),
-        CHICAGO_BUTCHERS("325"),
-        COLORADO_YETI("56"),
-        PHILADELPHIA_LIBERTY("111"),
-        YELLOWKNIFE_WRAITHS("58"),
-        ARIZONA_OUTLAWS("73"),
-        AUSTIN_COPPERHEADS("328"),
-        NEW_ORLEANS_SECOND_LINE("114"),
-        ORANGE_COUNTY_OTTERS("54"),
-        SAN_JOSE_SABERCATS("52")
     }
 }
