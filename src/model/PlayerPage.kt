@@ -2,6 +2,7 @@ package model
 
 class PlayerPage(
     val user: String,
+    val name: String,
     val team: String,
     val tpeHistoryList: ArrayList<Pair<String, String>>,
     val strength: Int,

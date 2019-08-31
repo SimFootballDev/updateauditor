@@ -7,10 +7,7 @@ import javafx.scene.Parent
 import javafx.scene.control.ScrollPane
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import model.PlayerPage
-import model.PlayerPageListResponse
-import model.Team
-import model.UpdatePage
+import model.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.util.regex.Pattern
@@ -19,7 +16,7 @@ class AuditUpdatesScreen {
 
     private val root = FXMLLoader.load<Parent>(javaClass.classLoader.getResource("res/screen_audit_updates.fxml"))
 
-    fun start(primaryStage: Stage) {
+    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>) {
 
         primaryStage.scene.root = root
 
@@ -27,7 +24,7 @@ class AuditUpdatesScreen {
         (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
 
         Thread {
-            val resultList = auditUpdates()
+            val resultList = auditUpdates(sheetPageList)
             Platform.runLater {
                 (root.lookup("#scrollPane") as ScrollPane).content = Text(resultList.joinToString("\n"))
                 (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
@@ -35,7 +32,7 @@ class AuditUpdatesScreen {
         }.start()
     }
 
-    private fun auditUpdates(): ArrayList<String> {
+    private fun auditUpdates(sheetPageList: List<SheetPage>): List<String> {
 
         val resultList = ArrayList<String>()
 
@@ -66,16 +63,102 @@ class AuditUpdatesScreen {
                     if (playerPage.tpeHistoryList[playerPage.tpeHistoryList.lastIndex].second ==
                         playerPage.tpeHistoryList[playerPage.tpeHistoryList.lastIndex - 1].second
                     ) {
-                        resultList.add("${playerPage.user} - ${playerPage.team}")
+                        resultList.add("${playerPage.user} - ${playerPage.name} - ${playerPage.team}")
                     }
                 }
             }
         }
         resultList.add("\n--------------------------------------------------\n")
 
-        // fixme:
-        //Player Missing From Sheet
-        //Sheet Not Updated
+        val playerSheetMatchList = ArrayList<Pair<PlayerPage, SheetPage>>()
+
+        resultList.add("Player Missing From Sheet\n")
+        playerPageList.forEach { playerPage ->
+
+            val sheetPage = sheetPageList
+                .firstOrNull { sheetPage ->
+
+                    val regex = Pattern.compile("[^a-zA-Z0-9]").toRegex()
+
+                    val sheetPageName = sheetPage.playerName.toLowerCase().replace(regex, "")
+
+                    val playerPageName1 = playerPage.name.split(" ").let {
+                        if (it.size == 1) {
+                            "None" + it.first()
+                        } else {
+                            it.first() + it.last()
+                        }
+                    }.toLowerCase().replace(regex, "")
+
+                    val playerPageName2 = playerPage.name.toLowerCase().replace(regex, "")
+
+                    sheetPageName == playerPageName1 || sheetPageName == playerPageName2
+                }
+
+            if (sheetPage == null) {
+                resultList.add("${playerPage.user} - ${playerPage.name} - ${playerPage.team}")
+            } else {
+                playerSheetMatchList.add(Pair(playerPage, sheetPage))
+            }
+        }
+        resultList.add("\n--------------------------------------------------\n")
+
+        resultList.add("Sheet Attribute Mismatches\n")
+        playerSheetMatchList.forEach { match ->
+
+            val mismatchList = ArrayList<String>()
+
+            if (match.first.strength != match.second.strength) {
+                mismatchList.add("strength mismatch")
+            }
+            if (match.first.agility != match.second.agility) {
+                mismatchList.add("agility mismatch")
+            }
+            if (match.first.arm != match.second.arm) {
+                mismatchList.add("arm mismatch")
+            }
+            if (match.first.intelligence != match.second.intelligence) {
+                mismatchList.add("intelligence mismatch")
+            }
+            if (match.first.throwingAccuracy != match.second.throwingAccuracy) {
+                mismatchList.add("throwingAccuracy mismatch")
+            }
+            if (match.first.tackling != match.second.tackling) {
+                mismatchList.add("tackling mismatch")
+            }
+            if (match.first.speed != match.second.speed) {
+                mismatchList.add("speed mismatch")
+            }
+            if (match.first.hands != match.second.hands) {
+                mismatchList.add("hands mismatch")
+            }
+            if (match.first.passBlocking != match.second.passBlocking) {
+                mismatchList.add("passBlocking mismatch")
+            }
+            if (match.first.runBlocking != match.second.runBlocking) {
+                mismatchList.add("runBlocking mismatch")
+            }
+            if (match.first.endurance != match.second.endurance) {
+                mismatchList.add("endurance mismatch")
+            }
+            if (match.first.kickPower != match.second.kickPower) {
+                mismatchList.add("kickPower mismatch")
+            }
+            if (match.first.kickAccuracy != match.second.kickAccuracy) {
+                mismatchList.add("kickAccuracy mismatch")
+            }
+            if (match.first.kickPower != match.second.puntPower) {
+                mismatchList.add("puntPower mismatch")
+            }
+            if (match.first.kickAccuracy != match.second.puntAccuracy) {
+                mismatchList.add("puntAccuracy mismatch")
+            }
+
+            if (mismatchList.isNotEmpty()) {
+                resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team} - ${mismatchList.joinToString()}")
+            }
+        }
+        resultList.add("\n--------------------------------------------------\n")
 
         return resultList
     }

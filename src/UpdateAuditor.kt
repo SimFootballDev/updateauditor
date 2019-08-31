@@ -3,6 +3,7 @@ import javafx.application.Application.launch
 import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import model.SheetPage
 import screen.AuditUpdatesScreen
 import screen.LoadPlayersScreen
 
@@ -25,8 +26,8 @@ class UpdateAuditor : Application() {
         loadPlayersScreen.start(this, primaryStage)
     }
 
-    fun onLoadClicked() {
-        auditUpdatesScreen.start(primaryStage)
+    fun onLoadClicked(sheetPageList: List<SheetPage>) {
+        auditUpdatesScreen.start(primaryStage, sheetPageList)
     }
 }
 

@@ -14,5 +14,7 @@ class SheetPage(
     val runBlocking: Int,
     val endurance: Int,
     val kickPower: Int,
-    val kickAccuracy: Int
+    val kickAccuracy: Int,
+    val puntPower: Int,
+    val puntAccuracy: Int
 )
