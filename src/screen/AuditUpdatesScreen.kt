@@ -70,6 +70,10 @@ class AuditUpdatesScreen {
         }
         resultList.add("\n--------------------------------------------------\n")
 
+        if (sheetPageList.isEmpty()) {
+            return resultList
+        }
+
         val playerSheetMatchList = ArrayList<Pair<PlayerPage, SheetPage>>()
 
         resultList.add("Player Missing From Sheet\n")
@@ -165,6 +169,8 @@ class AuditUpdatesScreen {
 
     private fun getUpdatePageList(): List<UpdatePage> {
 
+        val changedUserNameList = arrayListOf(Pair("EnfysNest", "Baron1898"))
+
         val updatePageList = ArrayList<UpdatePage>()
 
         val documentList = ArrayList<Document>()
@@ -200,16 +206,30 @@ class AuditUpdatesScreen {
                     val lastPostByStart = rowText.indexOf("showuser=", lastPostTimeEnd)
                     val lastPostByEnd = rowText.indexOf("</a>", lastPostByStart + 9)
 
-                    val title = rowText.substring(titleStart, titleEnd).let { it.substring(it.lastIndexOf(">") + 1) }
-                    val owner = rowText.substring(ownerStart, ownerEnd).let { it.substring(it.lastIndexOf(">") + 1) }
-                    val replies =
-                        rowText.substring(repliesStart, repliesEnd).let { it.substring(it.lastIndexOf(">") + 1) }
-                    val lastPostTime =
-                        rowText.substring(lastPostTimeStart, lastPostTimeEnd)
-                            .let { it.substring(it.lastIndexOf(">") + 1) }
-                    val lastPostBy =
-                        rowText.substring(lastPostByStart, lastPostByEnd)
-                            .let { it.substring(it.lastIndexOf(">") + 1) }
+                    val title = rowText.substring(titleStart, titleEnd)
+                        .let { it.substring(it.lastIndexOf(">") + 1) }
+
+                    var owner = rowText.substring(ownerStart, ownerEnd)
+                        .let { it.substring(it.lastIndexOf(">") + 1) }
+                        .replace("'", "’")
+
+                    changedUserNameList.firstOrNull { it.first == owner }?.let {
+                        owner = it.second
+                    }
+
+                    val replies = rowText.substring(repliesStart, repliesEnd)
+                        .let { it.substring(it.lastIndexOf(">") + 1) }
+
+                    val lastPostTime = rowText.substring(lastPostTimeStart, lastPostTimeEnd)
+                        .let { it.substring(it.lastIndexOf(">") + 1) }
+
+                    var lastPostBy = rowText.substring(lastPostByStart, lastPostByEnd)
+                        .let { it.substring(it.lastIndexOf(">") + 1) }
+                        .replace("'", "’")
+
+                    changedUserNameList.firstOrNull { it.first == lastPostBy }?.let {
+                        lastPostBy = it.second
+                    }
 
                     if (replies.toInt() > 0) {
                         updatePageList.add(
