@@ -19,7 +19,6 @@ class UpdateAuditor : Application() {
         this.primaryStage = primaryStage
 
         primaryStage.scene = Scene(VBox(), 600.0, 400.0)
-        primaryStage.isResizable = false
         primaryStage.title = "Update Auditor"
         primaryStage.show()
 

@@ -74,13 +74,13 @@ class AuditUpdatesScreen {
             return resultList
         }
 
-        val playerSheetMatchList = ArrayList<Pair<PlayerPage, SheetPage>>()
+        val playerSheetMatchList = ArrayList<Pair<PlayerPage, List<SheetPage>>>()
 
         resultList.add("Player Missing From Sheet\n")
         playerPageList.forEach { playerPage ->
 
-            val sheetPage = sheetPageList
-                .firstOrNull { sheetPage ->
+            val filteredSheetPageList = sheetPageList
+                .filter { sheetPage ->
 
                     val regex = Pattern.compile("[^a-zA-Z0-9]").toRegex()
 
@@ -99,10 +99,10 @@ class AuditUpdatesScreen {
                     sheetPageName == playerPageName1 || sheetPageName == playerPageName2
                 }
 
-            if (sheetPage == null) {
+            if (filteredSheetPageList.isEmpty()) {
                 resultList.add("${playerPage.user} - ${playerPage.name} - ${playerPage.team}")
             } else {
-                playerSheetMatchList.add(Pair(playerPage, sheetPage))
+                playerSheetMatchList.add(Pair(playerPage, filteredSheetPageList))
             }
         }
         resultList.add("\n--------------------------------------------------\n")
@@ -110,56 +110,65 @@ class AuditUpdatesScreen {
         resultList.add("Sheet Attribute Mismatches\n")
         playerSheetMatchList.forEach { match ->
 
-            val mismatchList = ArrayList<String>()
+            val listsOfMismatchList = ArrayList<ArrayList<String>>()
 
-            if (match.first.strength != match.second.strength) {
-                mismatchList.add("strength mismatch")
-            }
-            if (match.first.agility != match.second.agility) {
-                mismatchList.add("agility mismatch")
-            }
-            if (match.first.arm != match.second.arm) {
-                mismatchList.add("arm mismatch")
-            }
-            if (match.first.intelligence != match.second.intelligence) {
-                mismatchList.add("intelligence mismatch")
-            }
-            if (match.first.throwingAccuracy != match.second.throwingAccuracy) {
-                mismatchList.add("throwingAccuracy mismatch")
-            }
-            if (match.first.tackling != match.second.tackling) {
-                mismatchList.add("tackling mismatch")
-            }
-            if (match.first.speed != match.second.speed) {
-                mismatchList.add("speed mismatch")
-            }
-            if (match.first.hands != match.second.hands) {
-                mismatchList.add("hands mismatch")
-            }
-            if (match.first.passBlocking != match.second.passBlocking) {
-                mismatchList.add("passBlocking mismatch")
-            }
-            if (match.first.runBlocking != match.second.runBlocking) {
-                mismatchList.add("runBlocking mismatch")
-            }
-            if (match.first.endurance != match.second.endurance) {
-                mismatchList.add("endurance mismatch")
-            }
-            if (match.first.kickPower != match.second.kickPower) {
-                mismatchList.add("kickPower mismatch")
-            }
-            if (match.first.kickAccuracy != match.second.kickAccuracy) {
-                mismatchList.add("kickAccuracy mismatch")
-            }
-            if (match.first.kickPower != match.second.puntPower) {
-                mismatchList.add("puntPower mismatch")
-            }
-            if (match.first.kickAccuracy != match.second.puntAccuracy) {
-                mismatchList.add("puntAccuracy mismatch")
+            match.second.forEach { sheetPage ->
+
+                val mismatchList = ArrayList<String>()
+
+                if (match.first.strength != sheetPage.strength) {
+                    mismatchList.add("strength mismatch: ${match.first.strength} - ${sheetPage.strength}")
+                }
+                if (match.first.agility != sheetPage.agility) {
+                    mismatchList.add("agility mismatch: ${match.first.agility} - ${sheetPage.agility}")
+                }
+                if (match.first.arm != sheetPage.arm) {
+                    mismatchList.add("arm mismatch: ${match.first.arm} - ${sheetPage.arm}")
+                }
+                if (match.first.intelligence != sheetPage.intelligence) {
+                    mismatchList.add("intelligence mismatch: ${match.first.intelligence} - ${sheetPage.intelligence}")
+                }
+                if (match.first.throwingAccuracy != sheetPage.throwingAccuracy) {
+                    mismatchList.add("throwingAccuracy mismatch: ${match.first.throwingAccuracy} - ${sheetPage.throwingAccuracy}")
+                }
+                if (match.first.tackling != sheetPage.tackling) {
+                    mismatchList.add("tackling mismatch: ${match.first.tackling} - ${sheetPage.tackling}")
+                }
+                if (match.first.speed != sheetPage.speed) {
+                    mismatchList.add("speed mismatch: ${match.first.speed} - ${sheetPage.speed}")
+                }
+                if (match.first.hands != sheetPage.hands) {
+                    mismatchList.add("hands mismatch: ${match.first.hands} - ${sheetPage.hands}")
+                }
+                if (match.first.passBlocking != sheetPage.passBlocking) {
+                    mismatchList.add("passBlocking mismatch: ${match.first.passBlocking} - ${sheetPage.passBlocking}")
+                }
+                if (match.first.runBlocking != sheetPage.runBlocking) {
+                    mismatchList.add("runBlocking mismatch: ${match.first.runBlocking} - ${sheetPage.runBlocking}")
+                }
+                if (match.first.endurance != sheetPage.endurance) {
+                    mismatchList.add("endurance mismatch: ${match.first.endurance} - ${sheetPage.endurance}")
+                }
+                if (match.first.kickPower != sheetPage.kickPower) {
+                    mismatchList.add("kickPower mismatch: ${match.first.kickPower} - ${sheetPage.kickPower}")
+                }
+                if (match.first.kickAccuracy != sheetPage.kickAccuracy) {
+                    mismatchList.add("kickAccuracy mismatch: ${match.first.kickAccuracy} - ${sheetPage.kickAccuracy}")
+                }
+                if (match.first.kickPower != sheetPage.puntPower) {
+                    mismatchList.add("puntPower mismatch: ${match.first.kickPower} - ${sheetPage.puntPower}")
+                }
+                if (match.first.kickAccuracy != sheetPage.puntAccuracy) {
+                    mismatchList.add("puntAccuracy mismatch: ${match.first.kickAccuracy} - ${sheetPage.puntAccuracy}")
+                }
+
+                listsOfMismatchList.add(mismatchList)
             }
 
-            if (mismatchList.isNotEmpty()) {
-                resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team} - ${mismatchList.joinToString()}")
+            listsOfMismatchList.minBy { it.size }?.let { mismatchList ->
+                if (mismatchList.isNotEmpty()) {
+                    resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team} - ${mismatchList.joinToString()}")
+                }
             }
         }
         resultList.add("\n--------------------------------------------------\n")
