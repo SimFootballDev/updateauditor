@@ -4,6 +4,7 @@ import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import model.SheetPage
+import model.Team
 import screen.AuditUpdatesScreen
 import screen.LoadPlayersScreen
 
@@ -25,8 +26,8 @@ class UpdateAuditor : Application() {
         loadPlayersScreen.start(this, primaryStage)
     }
 
-    fun onLoadClicked(sheetPageList: List<SheetPage>) {
-        auditUpdatesScreen.start(primaryStage, sheetPageList)
+    fun onLoadClicked(sheetPageList: List<SheetPage>, teamList: List<Team>) {
+        auditUpdatesScreen.start(primaryStage, sheetPageList, teamList)
     }
 }
 

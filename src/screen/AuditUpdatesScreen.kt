@@ -16,7 +16,7 @@ class AuditUpdatesScreen {
 
     private val root = FXMLLoader.load<Parent>(javaClass.classLoader.getResource("res/screen_audit_updates.fxml"))
 
-    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>) {
+    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>, teamList: List<Team>) {
 
         primaryStage.scene.root = root
 
@@ -24,7 +24,7 @@ class AuditUpdatesScreen {
         (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
 
         Thread {
-            val resultList = auditUpdates(sheetPageList)
+            val resultList = auditUpdates(sheetPageList, teamList)
             Platform.runLater {
                 (root.lookup("#scrollPane") as ScrollPane).content = Text(resultList.joinToString("\n"))
                 (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
@@ -32,12 +32,12 @@ class AuditUpdatesScreen {
         }.start()
     }
 
-    private fun auditUpdates(sheetPageList: List<SheetPage>): List<String> {
+    private fun auditUpdates(sheetPageList: List<SheetPage>, teamList: List<Team>): List<String> {
 
         val resultList = ArrayList<String>()
 
-        val updatePageList = getUpdatePageList()
-        val playerPageList = getPlayerPageList()
+        val updatePageList = getUpdatePageList(teamList)
+        val playerPageList = getPlayerPageList(teamList)
 
         resultList.add("Update Page Not Found\n")
         playerPageList.forEach { playerPage ->
@@ -176,14 +176,14 @@ class AuditUpdatesScreen {
         return resultList
     }
 
-    private fun getUpdatePageList(): List<UpdatePage> {
+    private fun getUpdatePageList(teamList: List<Team>): List<UpdatePage> {
 
         val changedUserNameList = arrayListOf(Pair("EnfysNest", "Baron1898"))
 
         val updatePageList = ArrayList<UpdatePage>()
 
         val documentList = ArrayList<Document>()
-        Team.values().forEach {
+        teamList.forEach {
 
             val firstDocument = connect("http://nsfl.jcink.net/index.php?showforum=${it.id}")
             documentList.add(firstDocument)
@@ -280,12 +280,12 @@ class AuditUpdatesScreen {
         }
     }
 
-    private fun getPlayerPageList(): List<PlayerPage> {
+    private fun getPlayerPageList(teamList: List<Team>): List<PlayerPage> {
         return GsonBuilder().create().fromJson(
             connect("http://tpetracker.herokuapp.com/players_json").text(),
             PlayerPageListResponse::class.java
         ).filter { playerPage ->
-            Team.values().map { team -> team.name }.contains(playerPage.team)
+            teamList.map { team -> team.name }.contains(playerPage.team)
         }
     }
 }
