@@ -36,21 +36,21 @@ class LoadPlayersScreen {
                 val attributes = player.split(",")
                 SheetPage(
                     attributes[0] + " " + attributes[1].replace(" (R)", ""),
-                    strength = attributes[10].toInt(),
-                    agility = attributes[11].toInt(),
-                    arm = attributes[12].toInt(),
-                    intelligence = attributes[18].toInt(),
-                    throwingAccuracy = attributes[15].toInt(),
-                    tackling = attributes[20].toInt(),
-                    speed = attributes[13].toInt(),
-                    hands = attributes[14].toInt(),
-                    passBlocking = attributes[17].toInt(),
-                    runBlocking = attributes[16].toInt(),
-                    endurance = attributes[19].toInt(),
-                    kickPower = attributes[21].toInt(),
-                    kickAccuracy = attributes[22].toInt(),
-                    puntPower = attributes[23].toInt(),
-                    puntAccuracy = attributes[24].toInt()
+                    strength = attributes[10].toIntOrNull() ?: 0,
+                    agility = attributes[11].toIntOrNull() ?: 0,
+                    arm = attributes[12].toIntOrNull() ?: 0,
+                    intelligence = attributes[18].toIntOrNull() ?: 0,
+                    throwingAccuracy = attributes[15].toIntOrNull() ?: 0,
+                    tackling = attributes[20].toIntOrNull() ?: 0,
+                    speed = attributes[13].toIntOrNull() ?: 0,
+                    hands = attributes[14].toIntOrNull() ?: 0,
+                    passBlocking = attributes[17].toIntOrNull() ?: 0,
+                    runBlocking = attributes[16].toIntOrNull() ?: 0,
+                    endurance = attributes[19].toIntOrNull() ?: 0,
+                    kickPower = attributes[21].toIntOrNull() ?: 0,
+                    kickAccuracy = attributes[22].toIntOrNull() ?: 0,
+                    puntPower = attributes[23].toIntOrNull() ?: 0,
+                    puntAccuracy = attributes[24].toIntOrNull() ?: 0
                 )
             }
 
