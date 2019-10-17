@@ -107,6 +107,22 @@ class AuditUpdatesScreen {
         }
         resultList.add("\n--------------------------------------------------\n")
 
+        resultList.add("Player On Multiple Teams\n")
+        playerSheetMatchList.forEach { match ->
+            if (match.second.size > 1) {
+                resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team}")
+            }
+        }
+        resultList.add("\n--------------------------------------------------\n")
+
+        resultList.add("Player On Wrong Team\n")
+        playerSheetMatchList.forEach { match ->
+            if (match.second.firstOrNull { it.team.name == match.first.team } == null) {
+                resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team}")
+            }
+        }
+        resultList.add("\n--------------------------------------------------\n")
+
         resultList.add("Sheet Attribute Mismatches\n")
         playerSheetMatchList.forEach { match ->
 
@@ -165,7 +181,7 @@ class AuditUpdatesScreen {
                 listsOfMismatchList.add(mismatchList)
             }
 
-            listsOfMismatchList.minBy { it.size }?.let { mismatchList ->
+            listsOfMismatchList.forEach { mismatchList ->
                 if (mismatchList.isNotEmpty()) {
                     resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team} - ${mismatchList.joinToString()}")
                 }
@@ -185,13 +201,13 @@ class AuditUpdatesScreen {
         val documentList = ArrayList<Document>()
         teamList.forEach {
 
-            val firstDocument = connect("http://nsfl.jcink.net/index.php?showforum=${it.id}")
+            val firstDocument = connect("http://nsfl.jcink.net/index.php?showforum=${it.forumId}")
             documentList.add(firstDocument)
 
             val pageCount = parsePageCount(firstDocument.body().toString())
 
             for (i in 1..(pageCount - 1)) {
-                documentList.add(connect("http://nsfl.jcink.net/index.php?showforum=${it.id}&st=${i * 15}"))
+                documentList.add(connect("http://nsfl.jcink.net/index.php?showforum=${it.forumId}&st=${i * 15}"))
             }
         }
 

@@ -36,6 +36,7 @@ class LoadPlayersScreen {
                 val attributes = player.split(",")
                 SheetPage(
                     attributes[0] + " " + attributes[1].replace(" (R)", ""),
+                    teamList.firstOrNull { it.simId == attributes[9] } ?: Team("", "", ""),
                     strength = attributes[10].toIntOrNull() ?: 0,
                     agility = attributes[11].toIntOrNull() ?: 0,
                     arm = attributes[12].toIntOrNull() ?: 0,
