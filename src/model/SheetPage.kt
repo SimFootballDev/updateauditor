@@ -3,6 +3,8 @@ package model
 class SheetPage(
     val playerName: String,
     val team: Team,
+    val position: String,
+    val experience: Int,
     val strength: Int,
     val agility: Int,
     val arm: Int,

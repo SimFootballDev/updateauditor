@@ -35,8 +35,10 @@ class LoadPlayersScreen {
             .map { player ->
                 val attributes = player.split(",")
                 SheetPage(
-                    attributes[0] + " " + attributes[1].replace(" (R)", ""),
-                    teamList.firstOrNull { it.simId == attributes[9] } ?: Team("", "", ""),
+                    playerName = attributes[0] + " " + attributes[1].replace(" (R)", ""),
+                    team = teamList.firstOrNull { it.simId == attributes[9] } ?: Team("", "", ""),
+                    position = attributes[3],
+                    experience = attributes[7].toIntOrNull() ?: 0,
                     strength = attributes[10].toIntOrNull() ?: 0,
                     agility = attributes[11].toIntOrNull() ?: 0,
                     arm = attributes[12].toIntOrNull() ?: 0,
@@ -55,6 +57,8 @@ class LoadPlayersScreen {
                 )
             }
 
-        application.onLoadClicked(sheetPageList, teamList)
+        val currentSeason = ((root.lookup("#textAreaCurrentSeason") as TextArea).text).toInt()
+
+        application.onLoadClicked(sheetPageList, teamList, currentSeason)
     }
 }

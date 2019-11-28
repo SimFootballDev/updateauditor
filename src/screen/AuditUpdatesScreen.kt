@@ -16,7 +16,7 @@ class AuditUpdatesScreen {
 
     private val root = FXMLLoader.load<Parent>(javaClass.classLoader.getResource("res/screen_audit_updates.fxml"))
 
-    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>, teamList: List<Team>) {
+    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int) {
 
         primaryStage.scene.root = root
 
@@ -24,7 +24,7 @@ class AuditUpdatesScreen {
         (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
 
         Thread {
-            val resultList = auditUpdates(sheetPageList, teamList)
+            val resultList = auditUpdates(sheetPageList, teamList, currentSeason)
             Platform.runLater {
                 (root.lookup("#scrollPane") as ScrollPane).content = Text(resultList.joinToString("\n"))
                 (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
@@ -32,7 +32,7 @@ class AuditUpdatesScreen {
         }.start()
     }
 
-    private fun auditUpdates(sheetPageList: List<SheetPage>, teamList: List<Team>): List<String> {
+    private fun auditUpdates(sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int): List<String> {
 
         val resultList = ArrayList<String>()
 
@@ -131,6 +131,16 @@ class AuditUpdatesScreen {
             match.second.forEach { sheetPage ->
 
                 val mismatchList = ArrayList<String>()
+
+                val isBlockingBack = parseIsBlockingBack(match.first)
+                if (isBlockingBack && sheetPage.position != "FB") {
+                    mismatchList.add("position mismatch: FB - ${sheetPage.position}")
+                }
+
+                val experience = match.first.calculateExperience(currentSeason, isBlockingBack)
+                if (experience != sheetPage.experience) {
+                    mismatchList.add("experience mismatch: $experience - ${sheetPage.experience}")
+                }
 
                 if (match.first.strength != sheetPage.strength) {
                     mismatchList.add("strength mismatch: ${match.first.strength} - ${sheetPage.strength}")
@@ -275,6 +285,36 @@ class AuditUpdatesScreen {
         return updatePageList
     }
 
+    private fun getPlayerPageList(teamList: List<Team>): List<PlayerPage> {
+        return GsonBuilder().create().fromJson(
+            connect("http://tpetracker.herokuapp.com/players_json").text(),
+            PlayerPageListResponse::class.java
+        ).filter { playerPage ->
+            teamList.map { team -> team.name }.contains(playerPage.team)
+        }
+    }
+
+    private fun parseIsBlockingBack(playerPage: PlayerPage): Boolean {
+        return if (playerPage.position == "RB") {
+            val playerPageText = connect("http://nsfl.jcink.net/index.php?showtopic=${playerPage.id}")
+                .body()
+                .getElementsByClass("post-normal")[0]
+                .toString()
+            var lastIndex = 0
+            var count = 0
+            while (lastIndex != -1) {
+                lastIndex = playerPageText.indexOf("blocking", lastIndex, true)
+                if (lastIndex != -1) {
+                    count++
+                    lastIndex += 8
+                }
+            }
+            count > 2
+        } else {
+            false
+        }
+    }
+
     private fun parsePageCount(document: String): Int {
         return try {
             val startIndex = document.indexOf("Pages:</a>")
@@ -293,15 +333,6 @@ class AuditUpdatesScreen {
                 return Jsoup.connect(url).get()
             } catch (exception: Exception) {
             }
-        }
-    }
-
-    private fun getPlayerPageList(teamList: List<Team>): List<PlayerPage> {
-        return GsonBuilder().create().fromJson(
-            connect("http://tpetracker.herokuapp.com/players_json").text(),
-            PlayerPageListResponse::class.java
-        ).filter { playerPage ->
-            teamList.map { team -> team.name }.contains(playerPage.team)
         }
     }
 }
