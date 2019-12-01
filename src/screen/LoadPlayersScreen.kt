@@ -30,12 +30,25 @@ class LoadPlayersScreen {
 
     private fun onLoadClicked(application: UpdateAuditor, teamList: List<Team>) {
 
+        val specialPlayerNames = arrayListOf(
+            Pair("Troy Humuhumunukunukuapua'a", "Troy Humuhumunukunukuāpuaʻa"),
+            Pair("Marcella Toriki", "Marcella Tōriki"),
+            Pair("Bjorn Ironside", "Bjørn Ironside")
+        )
+
         val sheetPageList = ((root.lookup("#textAreaPlayers") as TextArea).text)
             .split("\n").let { it.subList(1, it.size) }
             .map { player ->
+
                 val attributes = player.split(",")
+
+                var playerName = attributes[0] + " " + attributes[1].replace(" (R)", "")
+                specialPlayerNames.firstOrNull { it.first == playerName }?.let {
+                    playerName = it.second
+                }
+
                 SheetPage(
-                    playerName = attributes[0] + " " + attributes[1].replace(" (R)", ""),
+                    playerName = playerName,
                     team = teamList.firstOrNull { it.simId == attributes[9] } ?: Team("", "", ""),
                     position = attributes[3],
                     experience = attributes[7].toIntOrNull() ?: 0,
