@@ -33,7 +33,10 @@ class LoadPlayersScreen {
         val specialPlayerNames = arrayListOf(
             Pair("Troy Humuhumunukunukuapua'a", "Troy Humuhumunukunukuāpuaʻa"),
             Pair("Marcella Toriki", "Marcella Tōriki"),
-            Pair("Bjorn Ironside", "Bjørn Ironside")
+            Pair("Bjorn Ironside", "Bjørn Ironside"),
+            Pair("Ke'oke'o Kane-Maika'i", "Keʻokeʻo Kāne-Maikaʻi"),
+            Pair("Bane Ka'ana'ana", "Bane Kaʻanāʻanā"),
+            Pair("Momona Keiki-Kane", "Momona Keiki-Kāne")
         )
 
         val sheetPageList = ((root.lookup("#textAreaPlayers") as TextArea).text)

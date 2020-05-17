@@ -16,7 +16,9 @@ enum class NSFLTeam(val forumId: String, val simId: String) {
     AUSTIN_COPPERHEADS("328", "10"),
     NEW_ORLEANS_SECOND_LINE("114", "8"),
     ORANGE_COUNTY_OTTERS("54", "5"),
-    SAN_JOSE_SABERCATS("52", "6")
+    SAN_JOSE_SABERCATS("52", "6"),
+    SARASOTA_SAILFISH("370", "11"),
+    HONOLULU_HAHALUA("372", "12")
 }
 
 enum class DSFLTeam(val forumId: String, val simId: String) {
@@ -25,5 +27,7 @@ enum class DSFLTeam(val forumId: String, val simId: String) {
     PORTLAND_PYTHONS("165", "1"),
     NORFOLK_SEAWOLVES("163", "2"),
     SAN_ANTONIO_MARSHALS("157", "6"),
-    TIJUANA_LUCHADORES("155", "5")
+    TIJUANA_LUCHADORES("155", "5"),
+    DALLAS_BIRDDOGS("357", "7"),
+    LONDON_ROYALS("354", "8")
 }

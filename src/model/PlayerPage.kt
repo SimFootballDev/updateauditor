@@ -1,5 +1,8 @@
 package model
 
+import kotlin.math.floor
+import kotlin.math.max
+
 class PlayerPage(
     val id: Int,
     val user: String,
@@ -31,13 +34,13 @@ class PlayerPage(
             when (position) {
                 "WR", "TE" -> 12
                 "S" -> {
-                    3 + (currentTPE / 150)
+                    3 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
                 }
                 "CB" -> {
-                    5 + (currentTPE / 150)
+                    5 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
                 }
                 else -> {
-                    currentSeason - getDraftSeason() + 1
+                    max(currentSeason - getDraftSeason() + 1, 0)
                 }
             }
         }

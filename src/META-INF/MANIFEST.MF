@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Main-Class: UpdateAuditor
+Class-Path: javafx.base.jar javafx.media.jar javafx.web.jar javafx.fxml.
+ jar gson-2.6.2.jar javafx.graphics.jar kotlin-stdlib.jar kotlin-reflect
+ .jar kotlin-test.jar kotlin-stdlib-jdk7.jar kotlin-stdlib-jdk8.jar java
+ fx.swing.jar javafx.controls.jar jsoup-1.12.1.jar
+

@@ -10,6 +10,9 @@ import javafx.stage.Stage
 import model.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.FileWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.regex.Pattern
 
 class AuditUpdatesScreen {
@@ -28,6 +31,11 @@ class AuditUpdatesScreen {
             Platform.runLater {
                 (root.lookup("#scrollPane") as ScrollPane).content = Text(resultList.joinToString("\n"))
                 (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
+            }
+            FileWriter("output.txt").apply {
+                write(resultList.joinToString("\n"))
+                flush()
+                close()
             }
         }.start()
     }
@@ -139,53 +147,53 @@ class AuditUpdatesScreen {
 
                 val experience = match.first.calculateExperience(currentSeason, isBlockingBack)
                 if (experience != sheetPage.experience) {
-                    mismatchList.add("experience mismatch: $experience - ${sheetPage.experience}")
+                    mismatchList.add("experience mismatch: update $experience - sheet ${sheetPage.experience}")
                 }
 
                 if (match.first.strength != sheetPage.strength) {
-                    mismatchList.add("strength mismatch: ${match.first.strength} - ${sheetPage.strength}")
+                    mismatchList.add("strength mismatch: update ${match.first.strength} - sheet ${sheetPage.strength}")
                 }
                 if (match.first.agility != sheetPage.agility) {
-                    mismatchList.add("agility mismatch: ${match.first.agility} - ${sheetPage.agility}")
+                    mismatchList.add("agility mismatch: update ${match.first.agility} - sheet ${sheetPage.agility}")
                 }
                 if (match.first.arm != sheetPage.arm) {
-                    mismatchList.add("arm mismatch: ${match.first.arm} - ${sheetPage.arm}")
+                    mismatchList.add("arm mismatch: update ${match.first.arm} - sheet ${sheetPage.arm}")
                 }
                 if (match.first.intelligence != sheetPage.intelligence) {
-                    mismatchList.add("intelligence mismatch: ${match.first.intelligence} - ${sheetPage.intelligence}")
+                    mismatchList.add("intelligence mismatch: update ${match.first.intelligence} - sheet ${sheetPage.intelligence}")
                 }
                 if (match.first.throwingAccuracy != sheetPage.throwingAccuracy) {
-                    mismatchList.add("throwingAccuracy mismatch: ${match.first.throwingAccuracy} - ${sheetPage.throwingAccuracy}")
+                    mismatchList.add("throwingAccuracy mismatch: update ${match.first.throwingAccuracy} - sheet ${sheetPage.throwingAccuracy}")
                 }
                 if (match.first.tackling != sheetPage.tackling) {
-                    mismatchList.add("tackling mismatch: ${match.first.tackling} - ${sheetPage.tackling}")
+                    mismatchList.add("tackling mismatch: update ${match.first.tackling} - sheet ${sheetPage.tackling}")
                 }
                 if (match.first.speed != sheetPage.speed) {
-                    mismatchList.add("speed mismatch: ${match.first.speed} - ${sheetPage.speed}")
+                    mismatchList.add("speed mismatch: update ${match.first.speed} - sheet ${sheetPage.speed}")
                 }
                 if (match.first.hands != sheetPage.hands) {
-                    mismatchList.add("hands mismatch: ${match.first.hands} - ${sheetPage.hands}")
+                    mismatchList.add("hands mismatch: update ${match.first.hands} - sheet ${sheetPage.hands}")
                 }
                 if (match.first.passBlocking != sheetPage.passBlocking) {
-                    mismatchList.add("passBlocking mismatch: ${match.first.passBlocking} - ${sheetPage.passBlocking}")
+                    mismatchList.add("passBlocking mismatch: update ${match.first.passBlocking} - sheet ${sheetPage.passBlocking}")
                 }
                 if (match.first.runBlocking != sheetPage.runBlocking) {
-                    mismatchList.add("runBlocking mismatch: ${match.first.runBlocking} - ${sheetPage.runBlocking}")
+                    mismatchList.add("runBlocking mismatch: update ${match.first.runBlocking} - sheet ${sheetPage.runBlocking}")
                 }
                 if (match.first.endurance != sheetPage.endurance) {
-                    mismatchList.add("endurance mismatch: ${match.first.endurance} - ${sheetPage.endurance}")
+                    mismatchList.add("endurance mismatch: update ${match.first.endurance} - sheet ${sheetPage.endurance}")
                 }
                 if (match.first.kickPower != sheetPage.kickPower) {
-                    mismatchList.add("kickPower mismatch: ${match.first.kickPower} - ${sheetPage.kickPower}")
+                    mismatchList.add("kickPower mismatch: update ${match.first.kickPower} - sheet ${sheetPage.kickPower}")
                 }
                 if (match.first.kickAccuracy != sheetPage.kickAccuracy) {
-                    mismatchList.add("kickAccuracy mismatch: ${match.first.kickAccuracy} - ${sheetPage.kickAccuracy}")
+                    mismatchList.add("kickAccuracy mismatch: update ${match.first.kickAccuracy} - sheet${sheetPage.kickAccuracy}")
                 }
                 if (match.first.kickPower != sheetPage.puntPower) {
-                    mismatchList.add("puntPower mismatch: ${match.first.kickPower} - ${sheetPage.puntPower}")
+                    mismatchList.add("puntPower mismatch: update ${match.first.kickPower} - sheet ${sheetPage.puntPower}")
                 }
                 if (match.first.kickAccuracy != sheetPage.puntAccuracy) {
-                    mismatchList.add("puntAccuracy mismatch: ${match.first.kickAccuracy} - ${sheetPage.puntAccuracy}")
+                    mismatchList.add("puntAccuracy mismatch: update ${match.first.kickAccuracy} - sheet ${sheetPage.puntAccuracy}")
                 }
 
                 listsOfMismatchList.add(mismatchList)
@@ -286,8 +294,12 @@ class AuditUpdatesScreen {
     }
 
     private fun getPlayerPageList(teamList: List<Team>): List<PlayerPage> {
+        val urlconn = URL("http://tpetracker.herokuapp.com/players_json").openConnection() as HttpURLConnection
+        val instream = urlconn.inputStream
+        val contents = String(instream.readAllBytes())
+
         return GsonBuilder().create().fromJson(
-            connect("http://tpetracker.herokuapp.com/players_json").text(),
+            contents,
             PlayerPageListResponse::class.java
         ).filter { playerPage ->
             teamList.map { team -> team.name }.contains(playerPage.team)
