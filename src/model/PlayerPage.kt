@@ -34,16 +34,28 @@ class PlayerPage(
             when (position) {
                 "WR", "TE" -> 12
                 "S" -> {
-                    3 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
+                    if (isDsflPlayerWithTpeCap()) {
+                        4
+                    } else {
+                        3 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
+                    }
                 }
                 "CB" -> {
-                    5 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
+                    if (isDsflPlayerWithTpeCap()) {
+                        6
+                    } else {
+                        5 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
+                    }
                 }
                 else -> {
                     max(currentSeason - getDraftSeason() + 1, 0)
                 }
             }
         }
+    }
+
+    private fun isDsflPlayerWithTpeCap(): Boolean {
+        return DSFLTeam.values().map {it.name}.contains(team) && currentTPE >= 250
     }
 
     private fun getDraftSeason() = draftYear.substring(1).toIntOrNull() ?: -999
