@@ -20,15 +20,15 @@ class LoadPlayersScreen {
         primaryStage.scene.root = root
 
         (root.lookup("#buttonLoadNSFL") as Button).setOnAction {
-            onLoadClicked(application, getNSFLTeamList())
+            onLoadClicked(application, getNSFLTeamList(), false)
         }
 
         (root.lookup("#buttonLoadDSFL") as Button).setOnAction {
-            onLoadClicked(application, getDSFLTeamList())
+            onLoadClicked(application, getDSFLTeamList(), true)
         }
     }
 
-    private fun onLoadClicked(application: UpdateAuditor, teamList: List<Team>) {
+    private fun onLoadClicked(application: UpdateAuditor, teamList: List<Team>, auditingDsfl: Boolean) {
 
         val specialPlayerNames = arrayListOf(
             Pair("Troy Humuhumunukunukuapua'a", "Troy Humuhumunukunukuāpuaʻa"),
@@ -75,6 +75,6 @@ class LoadPlayersScreen {
 
         val currentSeason = ((root.lookup("#textAreaCurrentSeason") as TextArea).text).toInt()
 
-        application.onLoadClicked(sheetPageList, teamList, currentSeason)
+        application.onLoadClicked(sheetPageList, teamList, currentSeason, auditingDsfl)
     }
 }

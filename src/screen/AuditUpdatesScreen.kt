@@ -19,7 +19,8 @@ class AuditUpdatesScreen {
 
     private val root = FXMLLoader.load<Parent>(javaClass.classLoader.getResource("res/screen_audit_updates.fxml"))
 
-    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int) {
+    fun start(primaryStage: Stage, sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int,
+              auditingDsfl: Boolean) {
 
         primaryStage.scene.root = root
 
@@ -27,7 +28,7 @@ class AuditUpdatesScreen {
         (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
 
         Thread {
-            val resultList = auditUpdates(sheetPageList, teamList, currentSeason)
+            val resultList = auditUpdates(sheetPageList, teamList, currentSeason, auditingDsfl)
             Platform.runLater {
                 (root.lookup("#scrollPane") as ScrollPane).content = Text(resultList.joinToString("\n"))
                 (root.lookup("#scrollPane") as ScrollPane).vvalue = 0.0
@@ -40,7 +41,7 @@ class AuditUpdatesScreen {
         }.start()
     }
 
-    private fun auditUpdates(sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int): List<String> {
+    private fun auditUpdates(sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int, auditingDsfl: Boolean): List<String> {
 
         val resultList = ArrayList<String>()
 
@@ -145,7 +146,7 @@ class AuditUpdatesScreen {
                     mismatchList.add("position mismatch: FB - ${sheetPage.position}")
                 }
 
-                val experience = match.first.calculateExperience(currentSeason, isBlockingBack)
+                val experience = match.first.calculateExperience(currentSeason, isBlockingBack,auditingDsfl)
                 if (experience != sheetPage.experience) {
                     mismatchList.add("experience mismatch: update $experience - sheet ${sheetPage.experience}")
                 }

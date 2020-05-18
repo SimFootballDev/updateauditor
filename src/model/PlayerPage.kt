@@ -27,21 +27,21 @@ class PlayerPage(
     val kickAccuracy: Int
 ) {
 
-    fun calculateExperience(currentSeason: Int, blockingBack: Boolean): Int {
+    fun calculateExperience(currentSeason: Int, blockingBack: Boolean, auditingDsfl: Boolean): Int {
         return if (blockingBack) {
             12
         } else {
             when (position) {
                 "WR", "TE" -> 12
                 "S" -> {
-                    if (isDsflPlayerWithTpeCap()) {
+                    if (auditingDsfl && currentTPE >= 250) {
                         4
                     } else {
                         3 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
                     }
                 }
                 "CB" -> {
-                    if (isDsflPlayerWithTpeCap()) {
+                    if (auditingDsfl && currentTPE >= 250) {
                         6
                     } else {
                         5 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
@@ -52,10 +52,6 @@ class PlayerPage(
                 }
             }
         }
-    }
-
-    private fun isDsflPlayerWithTpeCap(): Boolean {
-        return DSFLTeam.values().map {it.name}.contains(team) && currentTPE >= 250
     }
 
     private fun getDraftSeason() = draftYear.substring(1).toIntOrNull() ?: -999
