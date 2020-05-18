@@ -27,21 +27,21 @@ class PlayerPage(
     val kickAccuracy: Int
 ) {
 
-    fun calculateExperience(currentSeason: Int, blockingBack: Boolean, auditingDsfl: Boolean): Int {
+    fun calculateExperience(currentSeason: Int, blockingBack: Boolean, auditingDSFL: Boolean): Int {
         return if (blockingBack) {
             12
         } else {
             when (position) {
                 "WR", "TE" -> 12
                 "S" -> {
-                    if (auditingDsfl && currentTPE >= 250) {
+                    if (auditingDSFL && currentTPE >= 250) {
                         4
                     } else {
                         3 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()
                     }
                 }
                 "CB" -> {
-                    if (auditingDsfl && currentTPE >= 250) {
+                    if (auditingDSFL && currentTPE >= 250) {
                         6
                     } else {
                         5 + floor((currentTPE.toFloat() - 1F) / 150F).toInt()

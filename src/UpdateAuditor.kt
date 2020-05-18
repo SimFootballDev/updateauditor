@@ -26,8 +26,8 @@ class UpdateAuditor : Application() {
         loadPlayersScreen.start(this, primaryStage)
     }
 
-    fun onLoadClicked(sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int, auditingDsfl: Boolean) {
-        auditUpdatesScreen.start(primaryStage, sheetPageList, teamList, currentSeason, auditingDsfl)
+    fun onLoadClicked(sheetPageList: List<SheetPage>, teamList: List<Team>, currentSeason: Int, auditingDSFL: Boolean) {
+        auditUpdatesScreen.start(primaryStage, sheetPageList, teamList, currentSeason, auditingDSFL)
     }
 }
 
