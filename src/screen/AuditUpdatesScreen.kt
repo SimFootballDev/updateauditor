@@ -45,28 +45,39 @@ class AuditUpdatesScreen {
 
         val resultList = ArrayList<String>()
 
+        println("Loading update pages for ${teamList.joinToString(", ") { it.name }}....")
         val updatePageList = getUpdatePageList(teamList)
+
+        println("Loading master player list....")
         val playerPageList = getPlayerPageList(teamList)
 
+        println("Discovering missing update pages....")
         resultList.add("Update Page Not Found\n")
         playerPageList.forEach { playerPage ->
+            print("\r\t\tChecking ${playerPage.name}....                ")
             val updatePage = updatePageList.firstOrNull { updatePage -> updatePage.user == playerPage.user }
             if (updatePage == null) {
                 resultList.add(playerPage.user)
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
+        println("Discovering unprocessed update pages....")
         resultList.add("Update Page Not Processed\n")
         updatePageList.forEach { updatePage ->
+            print("\r\t\tChecking ${updatePage.user}....                     ")
             if (!updatePage.lastPostIsRecent && updatePage.lastPostIsFromOwner) {
                 resultList.add("${updatePage.user}: ${updatePage.title}")
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
+        println("Discovering unprocessed roster pages....")
         resultList.add("Player Page Not Updated\n")
         updatePageList.forEach { updatePage ->
+            print("\r\t\tChecking ${updatePage.user}....                     ")
             if (updatePage.lastPostIsRecent) {
                 playerPageList.firstOrNull { playerPage -> playerPage.user == updatePage.user }?.let { playerPage ->
                     if (playerPage.tpeHistoryList[playerPage.tpeHistoryList.lastIndex].second ==
@@ -77,6 +88,7 @@ class AuditUpdatesScreen {
                 }
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
         if (sheetPageList.isEmpty()) {
@@ -85,8 +97,10 @@ class AuditUpdatesScreen {
 
         val playerSheetMatchList = ArrayList<Pair<PlayerPage, List<SheetPage>>>()
 
+        println("Discovering players missing from sheet....")
         resultList.add("Player Missing From Sheet\n")
         playerPageList.forEach { playerPage ->
+            print("\r\t\tChecking ${playerPage.name}....                     ")
 
             val filteredSheetPageList = sheetPageList
                 .filter { sheetPage ->
@@ -114,26 +128,35 @@ class AuditUpdatesScreen {
                 playerSheetMatchList.add(Pair(playerPage, filteredSheetPageList))
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
+        println("Discovering players on multiple teams....")
         resultList.add("Player On Multiple Teams\n")
         playerSheetMatchList.forEach { match ->
+            print("\r\t\tChecking ${match.first.name}....              ")
             if (match.second.size > 1) {
                 resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team}")
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
+        println("Discovering players on wrong teams....")
         resultList.add("Player On Wrong Team\n")
         playerSheetMatchList.forEach { match ->
+            print("\r\t\tChecking ${match.first.name}....              ")
             if (match.second.firstOrNull { it.team.name == match.first.team } == null) {
                 resultList.add("${match.first.user} - ${match.first.name} - ${match.first.team}")
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
+        println("Discovering players with mismatched stats....")
         resultList.add("Sheet Attribute Mismatches\n")
         playerSheetMatchList.forEach { match ->
+            print("\r\t\tChecking ${match.first.name}....              ")
 
             val listsOfMismatchList = ArrayList<ArrayList<String>>()
 
@@ -206,6 +229,7 @@ class AuditUpdatesScreen {
                 }
             }
         }
+        println()
         resultList.add("\n--------------------------------------------------\n")
 
         return resultList
@@ -220,6 +244,8 @@ class AuditUpdatesScreen {
         val documentList = ArrayList<Document>()
         teamList.forEach {
 
+            print("\r\t\tLoading update page for ${it.name}....          ")
+
             val firstDocument = connect("http://nsfl.jcink.net/index.php?showforum=${it.forumId}")
             documentList.add(firstDocument)
 
@@ -230,6 +256,7 @@ class AuditUpdatesScreen {
             }
         }
 
+        print("\r\t\tProcessing update listings....                ")
         documentList.forEach { document ->
             document.body().getElementsByClass("topic-row").map { it.toString() }.forEach { rowText ->
 
@@ -291,20 +318,28 @@ class AuditUpdatesScreen {
             }
         }
 
+        println()
         return updatePageList
     }
 
     private fun getPlayerPageList(teamList: List<Team>): List<PlayerPage> {
-        val urlconn = URL("http://tpetracker.herokuapp.com/players_json").openConnection() as HttpURLConnection
+        val urlconn = URL("https://tracker.sim-football.com//players_json").openConnection() as HttpURLConnection
         val instream = urlconn.inputStream
         val contents = String(instream.readAllBytes())
 
-        return GsonBuilder().create().fromJson(
-            contents,
-            PlayerPageListResponse::class.java
-        ).filter { playerPage ->
+        print("\r\t\tParsing JSON response from TPETracker....             ")
+        val list = GsonBuilder().create().fromJson(
+                contents,
+                PlayerPageListResponse::class.java
+        )
+
+        print("\r\t\tFiltering results....                      ")
+        val filtered = list.filter { playerPage ->
             teamList.map { team -> team.name }.contains(playerPage.team)
         }
+
+        println()
+        return filtered
     }
 
     private fun parseIsBlockingBack(playerPage: PlayerPage): Boolean {
