@@ -246,43 +246,48 @@ class AuditUpdatesScreen {
 
             print("\r\t\tLoading update page for ${it.name}....          ")
 
-            val firstDocument = connect("http://nsfl.jcink.net/index.php?showforum=${it.forumId}")
+            val firstDocument = connect("https://forums.sim-football.com/forumdisplay.php?fid=${it.forumId}")
             documentList.add(firstDocument)
 
             val pageCount = parsePageCount(firstDocument.body().toString())
+            print("\r\t\t${it.name} has ${pageCount} pages....          ")
 
-            for (i in 1..(pageCount - 1)) {
-                documentList.add(connect("http://nsfl.jcink.net/index.php?showforum=${it.forumId}&st=${i * 15}"))
+            for (i in 2..(pageCount)) {
+                documentList.add(connect("https://forums.sim-football.com/forumdisplay.php?fid=${it.forumId}&page=${i}"))
             }
         }
 
         print("\r\t\tProcessing update listings....                ")
         documentList.forEach { document ->
-            document.body().getElementsByClass("topic-row").map { it.toString() }.forEach { rowText ->
+            document.body().getElementsByClass("inline_row").map { it.toString() }.forEach { rowText ->
 
                 try {
 
-                    val titleStart = rowText.indexOf(">", rowText.indexOf("title="))
-                    val titleEnd = rowText.indexOf("<", titleStart + 1)
+                    val titleStart = rowText.indexOf(">", rowText.indexOf("subject_new\" id=\""))
+                    val titleEnd = rowText.indexOf("</a>", titleStart + 1)
 
-                    val ownerStart = rowText.indexOf("showuser=", titleEnd)
-                    val ownerEnd = rowText.indexOf("</a>", ownerStart + 9)
+                    val ownerStart = rowText.indexOf("\"author smalltext\">", titleEnd)
+                    val ownerEnd = rowText.indexOf("</a>", ownerStart + 1)
 
-                    val repliesStart = rowText.indexOf("who_posted", ownerEnd)
-                    val repliesEnd = rowText.indexOf("</a>", repliesStart + 10)
+                    val repliesStart = rowText.indexOf("whoPosted", ownerEnd)
+                    val repliesEnd = rowText.indexOf("</a>", repliesStart + 1)
 
-                    val lastPostTimeStart = rowText.indexOf("<td class=\"row2\"><span class=\"desc\"", repliesEnd)
-                    val lastPostTimeEnd = rowText.indexOf("<br>", lastPostTimeStart + 35)
+                    val lastPostTimeStart = rowText.indexOf("lastpost smalltext\">", repliesEnd)
+                    val lastPostTimeEnd = rowText.indexOf("<br>", lastPostTimeStart + 1)
 
-                    val lastPostByStart = rowText.indexOf("showuser=", lastPostTimeEnd)
-                    val lastPostByEnd = rowText.indexOf("</a>", lastPostByStart + 9)
+                    val lastPostByStart = rowText.indexOf("<a href=\"https://forums.sim-football.com/member.php?action=profile", lastPostTimeEnd)
+                    val lastPostByEnd = rowText.indexOf("</a>", lastPostByStart + 1)
 
                     val title = rowText.substring(titleStart, titleEnd)
                         .let { it.substring(it.lastIndexOf(">") + 1) }
+                    print("\nTitle: ")
+                    print(title)
 
                     var owner = rowText.substring(ownerStart, ownerEnd)
                         .let { it.substring(it.lastIndexOf(">") + 1) }
                         .replace("'", "’")
+                    print("\nOwner: ")
+                    print(owner)
 
                     changedUserNameList.firstOrNull { it.first == owner }?.let {
                         owner = it.second
@@ -290,13 +295,23 @@ class AuditUpdatesScreen {
 
                     val replies = rowText.substring(repliesStart, repliesEnd)
                         .let { it.substring(it.lastIndexOf(">") + 1) }
+                    print("\nNumber of Replies: ")
+                    print(replies)
 
-                    val lastPostTime = rowText.substring(lastPostTimeStart, lastPostTimeEnd)
-                        .let { it.substring(it.lastIndexOf(">") + 1) }
+                    var lastPostTime = rowText.substring(lastPostTimeStart, lastPostTimeEnd)
+                        .let { it.substring(it.lastIndexOf("<br />") + 1) }
+                    lastPostTime = lastPostTime.replace("lastpost smalltext\">","")
+                            .replace("<span title=\"\\d{2}-\\d{2}-\\d{4}\">".toRegex(),"")
+                            .replace("<span title=\"\\d{2}-\\d{2}-\\d{4}, \\d{2}:\\d{2} [A-Z]{2}\">".toRegex(),"")
+                            .replace("</span>","")
+                    print("\nLast Post Time: ")
+                    print(lastPostTime)
 
                     var lastPostBy = rowText.substring(lastPostByStart, lastPostByEnd)
                         .let { it.substring(it.lastIndexOf(">") + 1) }
                         .replace("'", "’")
+                    print("\nLast Post By: ")
+                    print(lastPostBy)
 
                     changedUserNameList.firstOrNull { it.first == lastPostBy }?.let {
                         lastPostBy = it.second
@@ -308,7 +323,8 @@ class AuditUpdatesScreen {
                                 title,
                                 owner,
                                 lastPostTime.contains("seconds") || lastPostTime.contains("minutes") ||
-                                        lastPostTime.contains("Today") || lastPostTime.contains("Yesterday"),
+                                        lastPostTime.contains("Today") || lastPostTime.contains("Yesterday") ||
+                                        lastPostTime.contains("hours"),
                                 owner == lastPostBy
                             )
                         )
@@ -344,9 +360,9 @@ class AuditUpdatesScreen {
 
     private fun parseIsBlockingBack(playerPage: PlayerPage): Boolean {
         return if (playerPage.position == "RB") {
-            val playerPageText = connect("http://nsfl.jcink.net/index.php?showtopic=${playerPage.id}")
+            val playerPageText = connect("https://forums.sim-football.com/showthread.php?tid=${playerPage.id}")
                 .body()
-                .getElementsByClass("post-normal")[0]
+                .getElementsByClass("post_body")[0]
                 .toString()
             var lastIndex = 0
             var count = 0
@@ -365,7 +381,7 @@ class AuditUpdatesScreen {
 
     private fun parsePageCount(document: String): Int {
         return try {
-            val startIndex = document.indexOf("Pages:</a>")
+            val startIndex = document.indexOf("Pages (")
             val endIndex = document.indexOf(")", startIndex)
             document.substring(startIndex, endIndex)
                 .replace(Pattern.compile("[^0-9.]").toRegex(), "")
